@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
 import { Type } from '@google/genai';
+import { getSession } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Gazete sayfası oluşturabilmek için lütfen önce giriş yapınız veya kayıt olunuz.' },
+        { status: 401 }
+      );
+    }
+
     const { documents, interviewLog } = await req.json();
 
     if (!documents || typeof documents !== 'string' || !documents.trim()) {

@@ -19,6 +19,7 @@ import {
   Check
 } from 'lucide-react';
 import { SAMPLE_DOCUMENT_PACKS } from '@/lib/sample-documents';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface QAPair {
   id: string;
@@ -42,6 +43,7 @@ export const InterviewSection: React.FC<InterviewSectionProps> = ({
   onProceedToPublish,
   onGoToDocuments,
 }) => {
+  const { user, openLogin } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -52,6 +54,12 @@ export const InterviewSection: React.FC<InterviewSectionProps> = ({
   const currentPack = SAMPLE_DOCUMENT_PACKS.find(p => documentsText.includes(p.title.slice(0, 10))) || SAMPLE_DOCUMENT_PACKS[0];
 
   const handleAskQuestion = async (questionToAsk?: string) => {
+    if (!user) {
+      openLogin();
+      setErrorMessage('Röportaj yapabilmek ve soru sorabilmek için lütfen giriş yapınız.');
+      return;
+    }
+
     const q = (questionToAsk || currentQuestion).trim();
     if (!q) return;
 
@@ -221,6 +229,27 @@ export const InterviewSection: React.FC<InterviewSectionProps> = ({
             className="px-3.5 py-1.5 text-xs font-semibold bg-amber-700 text-amber-50 rounded-lg hover:bg-amber-800 transition-colors"
           >
             Belgeler Bölümüne Git
+          </button>
+        </div>
+      )}
+
+      {/* Auth required banner if logged out */}
+      {!user && (
+        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-stone-800">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-200 border border-amber-300 flex items-center justify-center text-amber-900 shrink-0">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-amber-950 font-serif">Röportaj İçin Giriş Gerekli</h4>
+              <p className="text-xs text-amber-800">Belgeler üzerinden soru sorabilmek ve yapay zekâ muhabirle görüşebilmek için lütfen oturum açınız.</p>
+            </div>
+          </div>
+          <button
+            onClick={openLogin}
+            className="px-4 py-2 text-xs font-semibold bg-amber-800 hover:bg-amber-900 text-amber-50 rounded-lg transition-colors whitespace-nowrap shadow-sm"
+          >
+            Giriş Yap / Kayıt Ol
           </button>
         </div>
       )}

@@ -1,5 +1,7 @@
 import type {Metadata} from 'next';
 import './globals.css'; // Global styles
+import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthModal } from '@/components/AuthModal';
 
 export const metadata: Metadata = {
   title: 'Tarih Muhabiri - Tarih Dersi İçin Belgeye Dayalı Röportaj ve Gazete',
@@ -20,7 +22,10 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="tr">
       <body suppressHydrationWarning className="min-h-screen bg-stone-100 text-stone-900 antialiased selection:bg-amber-200 selection:text-amber-950 font-sans">
-        {children}
+        <AuthProvider>
+          {children}
+          <AuthModal />
+        </AuthProvider>
       </body>
     </html>
   );

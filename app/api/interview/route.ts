@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
+import { getSession } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Röportaj yapabilmek için lütfen önce giriş yapınız veya kayıt olunuz.' },
+        { status: 401 }
+      );
+    }
+
     const { documents, question, history } = await req.json();
 
     if (!documents || typeof documents !== 'string' || !documents.trim()) {

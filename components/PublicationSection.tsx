@@ -14,6 +14,8 @@ import {
 import { NewspaperView, NewspaperData } from './NewspaperView';
 import { PodcastView, PodcastData } from './PodcastView';
 import { QAPair } from './InterviewSection';
+import { useAuth } from '@/contexts/AuthContext';
+import { ShieldAlert } from 'lucide-react';
 
 interface PublicationSectionProps {
   documentsText: string;
@@ -36,12 +38,19 @@ export const PublicationSection: React.FC<PublicationSectionProps> = ({
   onGoToDocuments,
   onGoToInterview,
 }) => {
+  const { user, openLogin } = useAuth();
   const [activePubTab, setActivePubTab] = useState<'newspaper' | 'podcast'>('newspaper');
   const [generatingNewspaper, setGeneratingNewspaper] = useState(false);
   const [generatingPodcast, setGeneratingPodcast] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleGenerateNewspaper = async () => {
+    if (!user) {
+      openLogin();
+      setErrorMessage('Gazete sayfası basabilmek için lütfen giriş yapınız veya kayıt olunuz.');
+      return;
+    }
+
     if (!documentsText.trim()) {
       setErrorMessage('Gazete sayfası oluşturmak için önce 1. Bölümden tarihî belge yüklemelisiniz.');
       return;
@@ -77,6 +86,12 @@ export const PublicationSection: React.FC<PublicationSectionProps> = ({
   };
 
   const handleGeneratePodcast = async () => {
+    if (!user) {
+      openLogin();
+      setErrorMessage('Podcast yayını oluşturabilmek için lütfen giriş yapınız veya kayıt olunuz.');
+      return;
+    }
+
     if (!documentsText.trim()) {
       setErrorMessage('Podcast oluşturmak için önce 1. Bölümden tarihî belge yüklemelisiniz.');
       return;
@@ -113,6 +128,27 @@ export const PublicationSection: React.FC<PublicationSectionProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Auth required banner if logged out */}
+      {!user && (
+        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-stone-800 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-200 border border-amber-300 flex items-center justify-center text-amber-900 shrink-0">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-amber-950 font-serif">Yayın Masası İçin Giriş Gerekli</h4>
+              <p className="text-xs text-amber-800">1919 gazete sayfası basabilmek ve iki sesli podcast yayını üretebilmek için lütfen oturum açınız.</p>
+            </div>
+          </div>
+          <button
+            onClick={openLogin}
+            className="px-4 py-2 text-xs font-semibold bg-amber-800 hover:bg-amber-900 text-amber-50 rounded-lg transition-colors whitespace-nowrap shadow-sm"
+          >
+            Giriş Yap / Kayıt Ol
+          </button>
+        </div>
+      )}
+
       {/* Publication Hub Header */}
       <div className="bg-stone-900 text-stone-100 rounded-2xl p-6 border border-stone-800 shadow-xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

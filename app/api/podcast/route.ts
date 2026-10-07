@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
 import { Type } from '@google/genai';
+import { getSession } from '@/lib/auth';
 
 interface DialogueTurn {
   speaker: 'Muhabir' | 'Tarihçi';
@@ -10,6 +11,14 @@ interface DialogueTurn {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Podcast oluşturabilmek için lütfen önce giriş yapınız veya kayıt olunuz.' },
+        { status: 401 }
+      );
+    }
+
     const { newsData, documents } = await req.json();
 
     if (!newsData && !documents) {

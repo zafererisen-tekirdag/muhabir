@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Newspaper, Radio, ScrollText, Sparkles, BookOpen } from 'lucide-react';
+import { Newspaper, Radio, ScrollText, Sparkles, BookOpen, LogIn, LogOut, User as UserIcon } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavbarProps {
   activeTab: 'documents' | 'interview' | 'publish';
@@ -22,6 +23,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   hasPodcast,
   onOpenSamplePacks,
 }) => {
+  const { user, isLoading, openLogin, openRegister, logout } = useAuth();
+
   return (
     <header className="sticky top-0 z-40 bg-stone-900 border-b border-stone-800 text-stone-100 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,16 +49,53 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Quick preset button */}
-          <div className="hidden md:flex items-center">
+          {/* Right Action buttons: Presets + Auth */}
+          <div className="flex items-center gap-2.5">
             <button
               onClick={onOpenSamplePacks}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-200 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-800/60 rounded-md transition-colors"
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-200 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-800/60 rounded-md transition-colors"
               title="Örnek tarihî belge paketlerini gör"
             >
               <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-              <span>Örnek Belgeler (Amasya, Erzurum...)</span>
+              <span>Örnek Belgeler</span>
             </button>
+
+            {isLoading ? (
+              <div className="w-20 h-8 bg-stone-800/50 rounded-md animate-pulse" />
+            ) : user ? (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-800/80 border border-stone-700/60 text-xs text-stone-200">
+                  <UserIcon className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="max-w-[120px] sm:max-w-[160px] truncate font-medium">
+                    {user.name}
+                  </span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-stone-400 hover:text-red-400 hover:bg-stone-800/60 rounded-md border border-stone-800 transition"
+                  title="Oturumu Kapat"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Çıkış</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={openLogin}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-stone-200 hover:text-white bg-stone-800 hover:bg-stone-700/80 rounded-md border border-stone-700 transition"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Giriş Yap</span>
+                </button>
+                <button
+                  onClick={openRegister}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-100 bg-amber-700 hover:bg-amber-600 rounded-md border border-amber-600 shadow-sm transition"
+                >
+                  <span>Kayıt Ol</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
